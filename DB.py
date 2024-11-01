@@ -1,5 +1,4 @@
 import pandas as pd
-
 from datetime import datetime
 import sqlalchemy
 from sqlalchemy import create_engine, text
