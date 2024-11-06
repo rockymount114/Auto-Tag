@@ -1,3 +1,4 @@
+"""get zipcode using USPS API"""
 import pandas as pd
 import requests
 import random
@@ -46,8 +47,10 @@ for index, row in df.iterrows():
     zip_code = get_zip(address, city, state)
     zip_codes.append(zip_code) 
     time.sleep(random.randint(1, 2))
+    print(f"Processed row {index + 1} of {len(df)}, Zip Code: {zip_code}")
 
+# Replace the 'Zip Code' column in df with the new zip codes
+df['Zip Code'] = zip_codes
 
-zip_code_df = pd.DataFrame(zip_codes, columns=['Zip Code'])
-
-zip_code_df.to_csv('new data with zip code.csv', index=False)
+# Save the updated DataFrame to a new CSV file
+df.to_csv('new_data_with_zip_code.csv', index=False)

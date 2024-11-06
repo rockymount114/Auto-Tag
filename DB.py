@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from datetime import datetime
 import sqlalchemy
@@ -5,9 +6,9 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
 import pyodbc
 from dotenv import load_dotenv
-import os
-
+import pyproj
 import smtplib
+import requests
 from email.message import EmailMessage
 from query import QUERY
 
@@ -19,6 +20,7 @@ class DatabaseManager:
         self.password = password
         self.port = port
         self.engine = self.create_db_engine()
+        
         # self.email_address = os.getenv('EMAIL_ADDRESS')
         # self.email_password = os.getenv('EMAIL_PASSWORD')
 
@@ -59,6 +61,34 @@ class DatabaseManager:
     def write_to_csv(self, df, filename):
         """write a dataframe to a CSV file"""
         df.to_csv(filename, index=False, sep=',', quoting=1)
+        
+    @staticmethod    
+    def get_cords(x, y):        
+        src_crs = pyproj.CRS.from_epsg(2264)  # NAD_1983_StatePlane_California_VI_FIPS_0406
+        tgt_crs = pyproj.CRS.from_epsg(4326)  # WGS 84 (latitude and longitude)
+
+        transformer = pyproj.Transformer.from_crs(src_crs, tgt_crs)
+        lat, lon = transformer.transform(x, y)
+
+        return lat, lon
+    
+    @staticmethod 
+    def get_zipcode(lat, lon):
+        api_key = os.getenv("GOOGLE_API_KEY")
+        url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&key={api_key}"
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+            for result in data["results"]:
+                for component in result["address_components"]:
+                    if "postal_code" in component["types"]:
+                        zip_code = component["long_name"]
+                        print(zip_code)
+                        return zip_code
+        else:
+            print("Error:", response.status_code)
+            return None
     
     
  
