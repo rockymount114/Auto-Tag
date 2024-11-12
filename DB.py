@@ -72,22 +72,30 @@ class DatabaseManager:
 
         return lat, lon
     
+    # Using GIS API to get zip code
+    
     @staticmethod 
-    def get_zipcode(lat, lon):
-        api_key = os.getenv("GOOGLE_API_KEY")
-        url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&key={api_key}"
-        response = requests.get(url)
-
+    def address_to_zip(address):
+        url = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates"
+        params = {
+            "f": "pjson",
+            "singleLine": address,
+            "token": os.getenv("GIS_TOKEN")
+        }
+        response = requests.get(url, params=params)
+        
         if response.status_code == 200:
-            data = response.json()
-            for result in data["results"]:
-                for component in result["address_components"]:
-                    if "postal_code" in component["types"]:
-                        zip_code = component["long_name"]
-                        print(zip_code)
-                        return zip_code
+            data=response.json()
+            address = data['candidates'][0]['address']
+            zipcode = address.split(',')[-1].strip()
+            if len(zipcode) == 5 and zipcode.isdigit():
+                return zipcode
+            else:
+                return None
         else:
-            print("Error:", response.status_code)
+            # print("Error:", response.status_code)
+            with open('error_log.txt', 'a') as f:
+                f.write(f"Error processing address: {address}\n")
             return None
     
     

@@ -1,8 +1,8 @@
-QUERY=f"""
 WITH cad_cte AS(
        SELECT inm.inci_id, inm.case_id, inm.naturecode, inm.nature, inm.closecode, inm.street, 
 	          inm.citydesc, inm.zip, inm.agency, inm.calltime, offd_tbl.emdept_id, offd_tbl.timestamp AS "timeDisptached"
-			  --, inm.geox, inm.geoy
+			  , inm.geox
+			  , inm.geoy
        FROM cad.dbo.inmain inm
               JOIN (SELECT MIN(id.timestamp) AS timestamp, ud.emdept_id, id.inci_id
                      FROM cad.dbo.incilog id 
@@ -23,8 +23,6 @@ offc_cte AS(
        GROUP BY ic.inci_id, uc.emdept_id
 )
 
-
-
 SELECT 
 
     cc.inci_id AS [Event ID], 
@@ -37,26 +35,36 @@ SELECT
 	CASE WHEN cc.citydesc = '' THEN 'ROCKY MOUNT' 
 		 WHEN cc.citydesc = 'NV' THEN 'NASHVILLE'
 		 ELSE cc.citydesc END AS [City], 
-
-
 	'NC' AS [State], 
      
-	 '' AS [Zip Code], --Add Zip Code here
-	 --cc.geox,
-	 --cc.geoy,
+	 CASE WHEN cc.street = 'P21' THEN '27802'
+		  WHEN cc.street LIKE '%US64W%' THEN '27804'
+		  WHEN cc.street LIKE '%US64E%' THEN '27801'  
+		  WHEN cc.street LIKE '%I95S%' THEN '27804'
+		  WHEN cc.street LIKE '%DOWNTOWN%' THEN '27804'
+		  WHEN cc.street LIKE '%SUNSET AVE%' THEN '27804'
+		  WHEN cc.street LIKE '%RALEIGH BLVD%' THEN '27801'
+		  WHEN cc.street LIKE '%NC97%' THEN '27801'
+		  WHEN cc.street LIKE '%RUSSELL ST%' THEN '27803'
+		  WHEN cc.street LIKE '%PARK AVE%' THEN '27801'
+		  WHEN cc.street LIKE '%CHESTER ST%' THEN '27804'
+		  
+	 
+		ELSE '' END AS [Zip Code], --Add Zip Code here
+
+		cc.geox,
+		cc.geoy,
 
 	(SELECT inmain.nature FROM inmain WHERE inmain.inci_id = cc.inci_id) AS [Call Type],
 	cc.closecode AS [Clearance Code],
+
        (SELECT inmain.nature FROM inmain WHERE inmain.inci_id = cc.inci_id) AS [Category]
-       --, cc.closecode AS [Category 2]
+
+       --cc.closecode AS [Category 2] -- don't need this 11/12/2024 meeting
 	  
 FROM cad_cte cc
-
-JOIN offc_cte oc 
-ON cc.inci_id = oc.inci_id AND cc.emdept_id = oc.emdept_id
-
+       JOIN offc_cte oc ON cc.inci_id = oc.inci_id AND cc.emdept_id = oc.emdept_id
 
 WHERE cc.calltime >= DATEADD(dd, -2, GETDATE())
 
 ORDER BY cc.inci_id
-"""
