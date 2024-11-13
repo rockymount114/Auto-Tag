@@ -6,12 +6,17 @@ from DB import DatabaseManager
 
 load_dotenv()
 
-def address_to_zip(address):
+token = DatabaseManager.get_token()
+print(token)
+
+def address_to_zip(address, token):
+    
     url = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates"
     params = {
         "f": "pjson",
         "singleLine": address,
-        "token": os.getenv("GIS_TOKEN")
+        # "token": os.getenv("GIS_TOKEN")
+        "token": token
     }
     response = requests.get(url, params=params)
     
@@ -43,7 +48,7 @@ for index, row in df.iterrows():
         zip_codes.append('27803')
         continue   
     address = row['Street'] + ', ' + row['City'] + ', ' + row['State']
-    zip_code = address_to_zip(address)
+    zip_code = address_to_zip(address, token=token)
     zip_codes.append(zip_code) 
     
     print(f"Processed row {index + 1} of {len(df)}, Zip Code: {zip_code}")

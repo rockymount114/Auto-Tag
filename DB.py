@@ -74,28 +74,76 @@ class DatabaseManager:
     
     # Using GIS API to get zip code
     
-    @staticmethod 
-    def address_to_zip(address):
-        url = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates"
+    @staticmethod
+    def get_token():
+        client_id = os.getenv("GIS_CLIENT_ID")
+        client_secret = os.getenv("GIS_CLIENT_SECRET")
+        arcgis_url = "https://www.arcgis.com"  # or your ArcGIS Enterprise URL
+
+        # Set the token endpoint URL
+        token_url = f"{arcgis_url}/sharing/rest/oauth2/token"
+
+        # Set the token request parameters
         params = {
-            "f": "pjson",
-            "singleLine": address,
-            "token": os.getenv("GIS_TOKEN")
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "grant_type": "client_credentials"
         }
-        response = requests.get(url, params=params)
-        
+
+        # Make the token request
+        response = requests.post(token_url, params=params)
+
+        # Check if the request was successful
         if response.status_code == 200:
-            data=response.json()
-            address = data['candidates'][0]['address']
-            zipcode = address.split(',')[-1].strip()
-            if len(zipcode) == 5 and zipcode.isdigit():
-                return zipcode
-            else:
-                return None
+            # Get the token from the response
+            token = response.json()["access_token"]    
+            # print(f"Token: {token}")
+            return token
         else:
-            # print("Error:", response.status_code)
+            # print(f"Error: {response.status_code}")
+            return None
+    
+    
+    @staticmethod
+    def address_to_zip(address):
+        try: 
+            token = DatabaseManager.get_token()
+            if token is not None:                       
+                url = "https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates"
+                params = {
+                    "f": "pjson",
+                    "singleLine": address,
+                    "token": token
+                }
+                response = requests.get(url, params=params)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    address = data['candidates'][0]['address']
+                    zipcode = address.split(',')[-1].strip()
+                    if len(zipcode) == 5 and zipcode.isdigit():
+                        return zipcode
+                    else:
+                        return None
+                else:
+                    with open('error_log.txt', 'a') as f:
+                        f.write(f"Error processing address: {address}\n")
+                    return None
+            else:
+                print("Missing token")
+                pass
+            
+        except (KeyError, IndexError):
             with open('error_log.txt', 'a') as f:
                 f.write(f"Error processing address: {address}\n")
+            return None
+        except requests.exceptions.RequestException as e:
+            with open('error_log.txt', 'a') as f:
+                f.write(f"Error processing address: {address}\nRequest error: {e}\n")
+            return None
+        except Exception as e:
+            with open('error_log.txt', 'a') as f:
+                f.write(f"Error processing address: {address}\nUnexpected error: {e}\n")
             return None
     
     
