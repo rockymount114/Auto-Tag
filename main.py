@@ -20,7 +20,7 @@ def get_all_zipcode(df):
     zip_codes = []
 
     for index, row in df.iterrows():
-        if (row['Street']=='GATEWAY HOTELS') | (row['Street']=='WAWA') | (row['Street'].str.contains('I95N/US64W')):
+        if (row['Street']=='GATEWAY HOTELS') | (row['Street']=='WAWA') | ('I95N/US64W' in row['Street']):
             zip_codes.append('27804')
             continue
         if (row['Street']=='ROCKY MOUNT HIGH') | (row['Street']=='Unit 970 chasing'):
@@ -29,7 +29,7 @@ def get_all_zipcode(df):
         if (row['Street']=='8197 EDWARDS RD'):
             zip_codes.append('27816')
             continue
-        if (row['Street'].str.contains('WATSON SEED FARM RD')):
+        if ('WATSON SEED FARM RD' in row['Street']):
             zip_codes.append('27891')
             continue
         
@@ -94,6 +94,7 @@ def to_sftp():
  
 
 if __name__ == "__main__":
+    
     load_dotenv()
 
     SERVER_ADDRESS = os.getenv('SERVER_NAME')
