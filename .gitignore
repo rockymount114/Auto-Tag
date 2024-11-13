@@ -4,3 +4,5 @@ docs/
 *.csv
 *.xlsx
 .env
+error_log.txt
+log.txt

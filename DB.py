@@ -21,6 +21,7 @@ class DatabaseManager:
         self.port = port
         self.engine = self.create_db_engine()
         
+        
         # self.email_address = os.getenv('EMAIL_ADDRESS')
         # self.email_password = os.getenv('EMAIL_PASSWORD')
 
@@ -76,26 +77,21 @@ class DatabaseManager:
     
     @staticmethod
     def get_token():
+        """get token from ArcGIS API"""
+        
+        load_dotenv()
         client_id = os.getenv("GIS_CLIENT_ID")
         client_secret = os.getenv("GIS_CLIENT_SECRET")
-        arcgis_url = "https://www.arcgis.com"  # or your ArcGIS Enterprise URL
-
-        # Set the token endpoint URL
+        arcgis_url = "https://www.arcgis.com"  
         token_url = f"{arcgis_url}/sharing/rest/oauth2/token"
 
-        # Set the token request parameters
         params = {
             "client_id": client_id,
             "client_secret": client_secret,
             "grant_type": "client_credentials"
         }
-
-        # Make the token request
         response = requests.post(token_url, params=params)
-
-        # Check if the request was successful
         if response.status_code == 200:
-            # Get the token from the response
             token = response.json()["access_token"]    
             # print(f"Token: {token}")
             return token
@@ -106,6 +102,14 @@ class DatabaseManager:
     
     @staticmethod
     def address_to_zip(address):
+        """use dataframe address to get zip code by using acrgis API
+
+        Args:
+            address (_type_): df['Street']
+
+        Returns:
+            _type_: zipcode (5 digits)
+        """
         try: 
             token = DatabaseManager.get_token()
             if token is not None:                       

@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from DB import DatabaseManager
 from query import QUERY
+import pandas as pd
 
 
 
@@ -11,6 +12,11 @@ from query import QUERY
 ######### Get zip code using GIS API
 
 def get_all_zipcode(df):
+    """get zip code using GIS API
+
+    Args:
+        df (_type_): pandas dataframe
+    """
     zip_codes = []
 
     for index, row in df.iterrows():
@@ -58,10 +64,7 @@ def to_sftp():
     remote_path  = 'data.csv'
 
     try:
-        db_manager = DatabaseManager(SERVER_ADDRESS, DATABASENAME, DB_USERNAME, DB_PASSWORD)
-        df = db_manager.fetch_data(db_manager.engine, QUERY)
-        # print(df.head(2)) 
-
+        df=pd.read_csv(csv_file_path)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(hostname=sftp_server, username=sftp_username, password=sftp_password, port=sftp_port)
@@ -95,6 +98,9 @@ if __name__ == "__main__":
     
     
     get_all_zipcode(df=df)
+    
+    
+    to_sftp()
     
     
     
