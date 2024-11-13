@@ -27,7 +27,7 @@ offc_cte AS(
 
 SELECT 
 
-    cc.inci_id AS [Event ID], 
+    CONCAT('RMPD', cc.inci_id) AS [Event ID], 
 	cc.case_id AS [Report Number],
 	cc.emdept_id AS [Officer Badge ID],
 	convert(varchar,cc.timeDisptached, 120) AS [Officer Dispatched DateTime], 
