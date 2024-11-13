@@ -20,12 +20,20 @@ def get_all_zipcode(df):
     zip_codes = []
 
     for index, row in df.iterrows():
-        if (row['Street']=='GATEWAY HOTELS') | (row['Street']=='WAWA'):
+        if (row['Street']=='GATEWAY HOTELS') | (row['Street']=='WAWA') | (row['Street'].str.contains('I95N/US64W')):
             zip_codes.append('27804')
             continue
         if (row['Street']=='ROCKY MOUNT HIGH') | (row['Street']=='Unit 970 chasing'):
             zip_codes.append('27803')
             continue   
+        if (row['Street']=='8197 EDWARDS RD'):
+            zip_codes.append('27816')
+            continue
+        if (row['Street'].str.contains('WATSON SEED FARM RD')):
+            zip_codes.append('27891')
+            continue
+        
+        
         address = row['Street'] + ', ' + row['City'] + ', ' + row['State']
         zip_code = dm.address_to_zip(address)
         zip_codes.append(zip_code) 
