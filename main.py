@@ -57,7 +57,7 @@ def get_all_zipcode(df):
                     'Call Type', 
                     'Clearance Code', 
                     'Category',
-                    'Customer Address'
+                    'Custom Address'
                 ])
 
 
