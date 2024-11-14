@@ -41,7 +41,7 @@ def get_all_zipcode(df):
         print(f"Processed row {index + 1} of {len(df)}, Zip Code: {zip_code}")
 
 
-    df['Zip Code'] = zip_codes
+    df.loc[:, 'Zip Code'] = zip_codes
 
     df.to_csv('data_gis.csv', index=False,
             columns=[
@@ -56,7 +56,8 @@ def get_all_zipcode(df):
                     'Zip Code', 
                     'Call Type', 
                     'Clearance Code', 
-                    'Category'
+                    'Category',
+                    'Customer Address'
                 ])
 
 
@@ -110,6 +111,7 @@ if __name__ == "__main__":
     
     
     to_sftp()
+
     
     
     

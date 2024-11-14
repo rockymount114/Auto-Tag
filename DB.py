@@ -62,17 +62,7 @@ class DatabaseManager:
     def write_to_csv(self, df, filename):
         """write a dataframe to a CSV file"""
         df.to_csv(filename, index=False, sep=',', quoting=1)
-        
-    @staticmethod    
-    def get_cords(x, y):        
-        src_crs = pyproj.CRS.from_epsg(2264)  # NAD_1983_StatePlane_California_VI_FIPS_0406
-        tgt_crs = pyproj.CRS.from_epsg(4326)  # WGS 84 (latitude and longitude)
-
-        transformer = pyproj.Transformer.from_crs(src_crs, tgt_crs)
-        lat, lon = transformer.transform(x, y)
-
-        return lat, lon
-    
+          
     # Using GIS API to get zip code
     
     @staticmethod
@@ -80,6 +70,7 @@ class DatabaseManager:
         """get token from ArcGIS API"""
         
         load_dotenv()
+        
         client_id = os.getenv("GIS_CLIENT_ID")
         client_secret = os.getenv("GIS_CLIENT_SECRET")
         arcgis_url = "https://www.arcgis.com"  
@@ -90,13 +81,18 @@ class DatabaseManager:
             "client_secret": client_secret,
             "grant_type": "client_credentials"
         }
+        
         response = requests.post(token_url, params=params)
+        
         if response.status_code == 200:
             token = response.json()["access_token"]    
             # print(f"Token: {token}")
             return token
         else:
             # print(f"Error: {response.status_code}")
+            with open('log.txt', 'a') as f:
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                f.write(f"{current_time}: token error {response.status_code}.\n")
             return None
     
     
