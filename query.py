@@ -27,8 +27,8 @@ offc_cte AS(
 
 SELECT 
 
-    CONCAT('RMPD', cc.inci_id) AS [Event ID], 
-	cc.case_id AS [Report Number],
+    cc.inci_id AS [Event ID], 
+	CASE WHEN cc.case_id !='' THEN CONCAT('RMPD',cc.case_id) ELSE cc.case_id END AS [Report Number],
 	cc.emdept_id AS [Officer Badge ID],
 	convert(varchar,cc.timeDisptached, 120) AS [Officer Dispatched DateTime], 
 	convert(varchar,oc.timeCleared, 120) AS [Officer Cleared DateTime],
@@ -49,8 +49,7 @@ SELECT
 	cc.closecode AS [Clearance Code],
        (SELECT inmain.nature FROM inmain WHERE inmain.inci_id = cc.inci_id) AS [Category]
        --, cc.closecode AS [Category 2]
-       , CONCAT(cc.street,', ', cc.citydesc) AS 'Customer Address'
-	  
+	  , CONCAT(cc.street,', ', cc.citydesc) AS 'Custom Address'
 FROM cad_cte cc
 
 JOIN offc_cte oc 
