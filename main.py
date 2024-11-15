@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import paramiko
 import os
 from datetime import datetime
-from DB import DatabaseManager
+from DB import DatabaseManager, EmailManager, EmailMessage
 from query import QUERY
 import pandas as pd
 
@@ -71,6 +71,7 @@ def to_sftp():
 
     csv_file_path = "data_gis.csv"
     remote_path  = 'data.csv'
+    ssh=None
 
     try:
         df=pd.read_csv(csv_file_path)
@@ -90,8 +91,18 @@ def to_sftp():
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
-        ssh.close()
+        if ssh:
+            ssh.close()
 
+def send_email_notification(df):
+    
+    load_dotenv()
+    
+    email_manager = EmailManager(os.getenv('EMAIL_ADDRESS'), os.getenv('EMAIL_PASSWORD'))
+    subject = "Auto Tag"
+    body = f"Auto Tag file transferred successfully.\n\n{df.head()}"
+    recipient = os.getenv('RECIPIENT')
+    email_manager.send_email(subject, body, recipient)
  
 
 if __name__ == "__main__":
@@ -107,10 +118,11 @@ if __name__ == "__main__":
     df = dm.fetch_data(dm.engine, QUERY)
     
     
-    get_all_zipcode(df=df)
-    
+    get_all_zipcode(df=df)    
     
     to_sftp()
+    
+    send_email_notification(df[:3])
 
     
     
