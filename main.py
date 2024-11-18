@@ -21,7 +21,10 @@ def get_all_zipcode(df):
         'WAWA': '27804',
         'ROCKY MOUNT HIGH': '27803',
         'Unit 970 chasing': '27803',
-        '8197 EDWARDS RD': '27816'
+        '8197 EDWARDS RD': '27816',
+        'DOWNTOWN':'27802',
+        'ROCKY MOUNT CHRYSLER DODGE JEEP RAM':'27803',
+        'NASH COUNTY JAIL':'27856',
     }
     
     def fetch_zip_code(row):
