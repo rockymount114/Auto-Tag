@@ -10,55 +10,105 @@ import pandas as pd
 
 
 ######### Get zip code using GIS API
-
 def get_all_zipcode(df):
-    """get zip code using GIS API
+    """Get zip code using GIS API.
 
     Args:
-        df (_type_): pandas dataframe
+        df (pd.DataFrame): pandas dataframe containing address information.
     """
-    zip_codes = []
-
-    for index, row in df.iterrows():
-        if (row['Street']=='GATEWAY HOTELS') | (row['Street']=='WAWA') | ('I95N/US64W' in row['Street']):
-            zip_codes.append('27804')
-            continue
-        if (row['Street']=='ROCKY MOUNT HIGH') | (row['Street']=='Unit 970 chasing'):
-            zip_codes.append('27803')
-            continue   
-        if (row['Street']=='8197 EDWARDS RD'):
-            zip_codes.append('27816')
-            continue
-        if ('WATSON SEED FARM RD' in row['Street']):
-            zip_codes.append('27891')
-            continue
+    zip_code_map = {
+        'GATEWAY HOTELS': '27804',
+        'WAWA': '27804',
+        'ROCKY MOUNT HIGH': '27803',
+        'Unit 970 chasing': '27803',
+        '8197 EDWARDS RD': '27816'
+    }
+    
+    def fetch_zip_code(row):
+        street = row['Street']
+        # Check for specific streets first
+        if street in zip_code_map:
+            return zip_code_map[street]
+        # Check for the specific case of 'I95N/US64W'
+        if 'I95N/US64W' in street:
+            return '27804'  # Return the corresponding zip code
+        # Check for partial match for 'WATSON SEED FARM RD'
+        if 'WATSON SEED FARM RD' in street:
+            return '27891'  # Return the corresponding zip code
         
-        
-        address = row['Street'] + ', ' + row['City'] + ', ' + row['State']
+        address = f"{street}, {row['City']}, {row['State']}"
         zip_code = dm.address_to_zip(address)
-        zip_codes.append(zip_code) 
+        if zip_code is None:  # Check if zip_code is None
+            print(f"Warning: No zip code found for address: {address}")
+            return ''  # Return an empty string or a default value
+        return zip_code
+
+    df['Zip Code'] = df.apply(fetch_zip_code, axis=1)
+
+    df.to_csv('data_gis.csv', index=False, columns=[
+        'Event ID', 
+        'Report Number', 
+        'Officer Badge ID', 
+        'Officer Dispatched DateTime', 
+        'Officer Cleared DateTime', 
+        'Street', 
+        'City', 
+        'State', 
+        'Zip Code', 
+        'Call Type', 
+        'Clearance Code', 
+        'Category',
+        'Custom Address'
+    ])
+    
+# def get_all_zipcode(df):
+#     """get zip code using GIS API
+
+#     Args:
+#         df (_type_): pandas dataframe
+#     """
+#     zip_codes = []
+
+#     for index, row in df.iterrows():
+#         if (row['Street']=='GATEWAY HOTELS') | (row['Street']=='WAWA') | ('I95N/US64W' in row['Street']):
+#             zip_codes.append('27804')
+#             continue
+#         if (row['Street']=='ROCKY MOUNT HIGH') | (row['Street']=='Unit 970 chasing'):
+#             zip_codes.append('27803')
+#             continue   
+#         if (row['Street']=='8197 EDWARDS RD'):
+#             zip_codes.append('27816')
+#             continue
+#         if ('WATSON SEED FARM RD' in row['Street']):
+#             zip_codes.append('27891')
+#             continue
         
-        print(f"Processed row {index + 1} of {len(df)}, Zip Code: {zip_code}")
+        
+#         address = row['Street'] + ', ' + row['City'] + ', ' + row['State']
+#         zip_code = dm.address_to_zip(address)
+#         zip_codes.append(zip_code) 
+        
+#         print(f"Processed row {index + 1} of {len(df)}, Zip Code: {zip_code}")
 
 
-    df.loc[:, 'Zip Code'] = zip_codes
+#     df.loc[:, 'Zip Code'] = zip_codes
 
-    df.to_csv('data_gis.csv', index=False,
-            columns=[
-                    'Event ID', 
-                    'Report Number', 
-                    'Officer Badge ID', 
-                    'Officer Dispatched DateTime', 
-                    'Officer Cleared DateTime', 
-                    'Street', 
-                    'City', 
-                    'State', 
-                    'Zip Code', 
-                    'Call Type', 
-                    'Clearance Code', 
-                    'Category',
-                    'Custom Address'
-                ])
+#     df.to_csv('data_gis.csv', index=False,
+#             columns=[
+#                     'Event ID', 
+#                     'Report Number', 
+#                     'Officer Badge ID', 
+#                     'Officer Dispatched DateTime', 
+#                     'Officer Cleared DateTime', 
+#                     'Street', 
+#                     'City', 
+#                     'State', 
+#                     'Zip Code', 
+#                     'Call Type', 
+#                     'Clearance Code', 
+#                     'Category',
+#                     'Custom Address'
+#                 ])
 
 
 ######### send data to Axon

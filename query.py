@@ -49,7 +49,8 @@ SELECT
 	cc.closecode AS [Clearance Code],
        (SELECT inmain.nature FROM inmain WHERE inmain.inci_id = cc.inci_id) AS [Category]
        --, cc.closecode AS [Category 2]
-	  , CONCAT(cc.street,', ', cc.citydesc) AS 'Custom Address'
+
+	  , cc.street AS 'Custom Address'
 FROM cad_cte cc
 
 JOIN offc_cte oc 
