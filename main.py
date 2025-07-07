@@ -69,7 +69,8 @@ def to_sftp():
     sftp_password =  os.getenv('FTP_PASSWORD')
     sftp_port = os.getenv('FTP_PORT')
 
-    csv_file_path = "data_gis.csv"
+    # csv_file_path = "data_gis.csv"
+    csv_file_path = "data.csv" # change to use data.csv directly
     remote_path  = 'data.csv'
     ssh=None
 
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     df = dm.fetch_data(dm.engine, QUERY)
     
     
-    get_all_zipcode(df=df)    
+    # get_all_zipcode(df=df)    
     
     to_sftp()
     
