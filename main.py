@@ -122,7 +122,7 @@ if __name__ == "__main__":
     
     to_sftp()
     
-    # send_email_notification(df[:3])
+    send_email_notification(df[:3])
 
     
     
